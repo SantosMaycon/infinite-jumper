@@ -3,6 +3,8 @@ const PATH__ASSETS = "../../assets";
 export default class Game extends Phaser.Scene {
   /** @type {Phaser.Physics.Arcade.Sprite} */
   player;
+  /** @type {Phaser.Physics.Arcade.StaticGroup} */
+  platform;
 
   constructor() {
     super("game");
@@ -18,7 +20,7 @@ export default class Game extends Phaser.Scene {
   }
   create() {
     // Adicionando a imagem no canvas/tela
-    this.add.image(240, 320, "background");
+    this.add.image(240, 320, "background").setScrollFactor(1, 0);
 
     // Adicionando o coelho
     this.player = this.physics.add
@@ -34,14 +36,14 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.startFollow(this.player);
 
     // Adicionando um grupo de elementos
-    const platforms = this.physics.add.staticGroup();
+    this.platforms = this.physics.add.staticGroup();
 
     for (let i = 0; i < 5; ++i) {
       const x = Phaser.Math.Between(80, 400);
       const y = 150 * i;
 
       /** @type {Phaser.Physics.Arcade.Sprite} */
-      const platform = platforms.create(x, y, "platform");
+      const platform = this.platforms.create(x, y, "platform");
       platform.scale = 0.5;
 
       /** @type {Phaser.Physics.Arcade.StaticBody} */
@@ -50,10 +52,21 @@ export default class Game extends Phaser.Scene {
     }
 
     // Colisão do coelho com a plataforma
-    this.physics.add.collider(platforms, this.player);
+    this.physics.add.collider(this.platforms, this.player);
   }
 
   update() {
+    this.platforms.children.iterate((child) => {
+      /** @type {Phaser.Physics.Arcade.Sprite} */
+      const platform = child;
+
+      const scrollY = this.cameras.main.scrollY;
+      if (platform.y >= scrollY + 700) {
+        platform.y = scrollY - Phaser.Math.Between(50, 100);
+        platform.body.updateFromGameObject();
+      }
+    });
+
     // Se o player tocar com a parte de baixo
     const touchingDown = this.player.body.touching.down;
 
