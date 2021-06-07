@@ -5,6 +5,8 @@ export default class Game extends Phaser.Scene {
   player;
   /** @type {Phaser.Physics.Arcade.StaticGroup} */
   platform;
+  /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
+  cursors;
 
   constructor() {
     super("game");
@@ -17,6 +19,8 @@ export default class Game extends Phaser.Scene {
 
     // Carregando o coelho
     this.load.image("bunny-stand", `${PATH__ASSETS}/player/bunny1_stand.png`);
+
+    this.cursors = this.input.keyboard.createCursorKeys();
   }
   create() {
     // Adicionando a imagem no canvas/tela
@@ -34,6 +38,7 @@ export default class Game extends Phaser.Scene {
 
     // Fazendo a camera seguir o player
     this.cameras.main.startFollow(this.player);
+    this.cameras.main.setDeadzone(this.scale.width * 1.5);
 
     // Adicionando um grupo de elementos
     this.platforms = this.physics.add.staticGroup();
@@ -72,6 +77,27 @@ export default class Game extends Phaser.Scene {
 
     if (touchingDown) {
       this.player.setVelocityY(-300);
+    }
+
+    if (this.cursors.left.isDown && !touchingDown) {
+      this.player.setVelocityX(-200);
+    } else if (this.cursors.right.isDown && !touchingDown) {
+      this.player.setVelocityX(200);
+    } else {
+      this.player.setVelocityX(0);
+    }
+
+    this.horizontalWrap(this.player);
+  }
+
+  /** @param {Phaser.GameObjects.Sprite} sprite */
+  horizontalWrap(sprite) {
+    const halfWidth = sprite.displayWidth * 0.5;
+    const gameWidth = this.scale.width;
+    if (sprite.x < -halfWidth) {
+      sprite.x = gameWidth + halfWidth;
+    } else if (sprite.x > gameWidth + halfWidth) {
+      sprite.x = -halfWidth;
     }
   }
 }
