@@ -13,6 +13,6 @@ export default class Game extends Phaser.Scene {
   create() {
     // Adicionando a imagem no canvas/tela
     this.add.image(240, 320, "background");
-    this.add.image(240, 320, "platform");
+    this.physics.add.image(240, 320, "platform").setScale(0.5);
   }
 }

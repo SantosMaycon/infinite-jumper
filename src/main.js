@@ -1,4 +1,4 @@
-import phaser from "./lib/phaser.js";
+import Phaser from "./lib/phaser.js";
 import Game from "./scenes/Game.js";
 
 export default new Phaser.Game({
@@ -6,4 +6,13 @@ export default new Phaser.Game({
   width: 480,
   height: 640,
   scene: Game,
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: {
+        y: 200,
+      },
+      debug: true,
+    },
+  },
 });
