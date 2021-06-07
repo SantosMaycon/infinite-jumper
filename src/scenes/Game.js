@@ -1,6 +1,9 @@
 const PATH__ASSETS = "../../assets";
 
 export default class Game extends Phaser.Scene {
+  /** @type {Phaser.Physics.Arcade.Sprite} */
+  player;
+
   constructor() {
     super("game");
   }
@@ -18,9 +21,17 @@ export default class Game extends Phaser.Scene {
     this.add.image(240, 320, "background");
 
     // Adicionando o coelho
-    const player = this.physics.add
+    this.player = this.physics.add
       .sprite(240, 320, "bunny-stand")
       .setScale(0.5);
+
+    // Config player
+    this.player.body.checkCollision.up = false;
+    this.player.body.checkCollision.left = false;
+    this.player.body.checkCollision.right = false;
+
+    // Fazendo a camera seguir o player
+    this.cameras.main.startFollow(this.player);
 
     // Adicionando um grupo de elementos
     const platforms = this.physics.add.staticGroup();
@@ -39,6 +50,15 @@ export default class Game extends Phaser.Scene {
     }
 
     // Colisão do coelho com a plataforma
-    this.physics.add.collider(platforms, player);
+    this.physics.add.collider(platforms, this.player);
+  }
+
+  update() {
+    // Se o player tocar com a parte de baixo
+    const touchingDown = this.player.body.touching.down;
+
+    if (touchingDown) {
+      this.player.setVelocityY(-300);
+    }
   }
 }
