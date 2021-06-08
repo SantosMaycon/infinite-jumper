@@ -1,3 +1,6 @@
+import Phaser from "../lib/phaser.js";
+import Carrot from "../game/Carrot.js";
+
 const PATH__ASSETS = "../../assets";
 
 export default class Game extends Phaser.Scene {
@@ -7,6 +10,8 @@ export default class Game extends Phaser.Scene {
   platform;
   /** @type {Phaser.Types.Input.Keyboard.CursorKeys} */
   cursors;
+  /** @type {Phaser.Physics.Arcade.Group} */
+  carrots;
 
   constructor() {
     super("game");
@@ -20,6 +25,8 @@ export default class Game extends Phaser.Scene {
     // Carregando o coelho
     this.load.image("bunny-stand", `${PATH__ASSETS}/player/bunny1_stand.png`);
 
+    this.load.image("carrot", `${PATH__ASSETS}/items/carrot.png`);
+
     this.cursors = this.input.keyboard.createCursorKeys();
   }
   create() {
@@ -30,6 +37,15 @@ export default class Game extends Phaser.Scene {
     this.player = this.physics.add
       .sprite(240, 320, "bunny-stand")
       .setScale(0.5);
+
+    // Adicionando cenouras
+    // const carrot = new Carrot(this, 240, 320, "carrot");
+    // this.add.existing(carrot);
+
+    this.carrots = this.physics.add.group({
+      classType: Carrot,
+    });
+    // this.carrots.get(240, 320, "carrot");
 
     // Config player
     this.player.body.checkCollision.up = false;
@@ -58,6 +74,9 @@ export default class Game extends Phaser.Scene {
 
     // Colisão do coelho com a plataforma
     this.physics.add.collider(this.platforms, this.player);
+
+    // Colisão cenora e plataforma
+    this.physics.add.collider(this.platforms, this.carrots);
   }
 
   update() {
@@ -69,6 +88,8 @@ export default class Game extends Phaser.Scene {
       if (platform.y >= scrollY + 700) {
         platform.y = scrollY - Phaser.Math.Between(50, 100);
         platform.body.updateFromGameObject();
+
+        this.addCarrotAbove(platform);
       }
     });
 
@@ -99,5 +120,21 @@ export default class Game extends Phaser.Scene {
     } else if (sprite.x > gameWidth + halfWidth) {
       sprite.x = -halfWidth;
     }
+  }
+
+  /**
+   * @param {Phaser.GameObjects.Sprite} sprite
+   */
+  addCarrotAbove(sprite) {
+    const y = sprite.y - sprite.displayHeight;
+
+    /** @type {Phaser.Physics.Arcade.Sprite} */
+    const carrot = this.carrots.get(sprite.x, y, "carrot");
+
+    this.add.existing(carrot);
+
+    carrot.body.setSize(carrot.width, carrot.height);
+
+    return carrot;
   }
 }
