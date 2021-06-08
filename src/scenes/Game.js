@@ -77,6 +77,15 @@ export default class Game extends Phaser.Scene {
 
     // Colisão cenora e plataforma
     this.physics.add.collider(this.platforms, this.carrots);
+
+    // Logica para chamar uma funcão que vai coletar a cenoura quando o player sobrepor a cenoura
+    this.physics.add.overlap(
+      this.player,
+      this.carrots,
+      this.handleCollectCarrot,
+      undefined,
+      this,
+    );
   }
 
   update() {
@@ -122,19 +131,36 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  /**
-   * @param {Phaser.GameObjects.Sprite} sprite
-   */
+  /** @param {Phaser.GameObjects.Sprite} sprite */
   addCarrotAbove(sprite) {
     const y = sprite.y - sprite.displayHeight;
 
     /** @type {Phaser.Physics.Arcade.Sprite} */
     const carrot = this.carrots.get(sprite.x, y, "carrot");
 
+    // Ativar e deixar as cenouras visible
+    carrot.setActive(true);
+    carrot.setVisible(true);
+
     this.add.existing(carrot);
 
     carrot.body.setSize(carrot.width, carrot.height);
 
+    // make sure body is enabed in the physics world
+    this.physics.world.enable(carrot);
+
     return carrot;
+  }
+
+  /**
+   * @param {Phaser.Physics.Arcade.Sprite} player
+   * @param {Carrot} carrot
+   */
+  handleCollectCarrot(player, carrot) {
+    // Esconder a cenoura da tela
+    this.carrots.killAndHide(carrot);
+
+    // Desabilitar a fisica da cenoura removida
+    this.physics.world.disableBody(carrot.body);
   }
 }
