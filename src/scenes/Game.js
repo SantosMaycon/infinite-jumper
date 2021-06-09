@@ -33,6 +33,7 @@ export default class Game extends Phaser.Scene {
 
     // Carregando o coelho
     this.load.image("bunny-stand", `${PATH__ASSETS}/player/bunny1_stand.png`);
+    this.load.image("bunny-jump", `${PATH__ASSETS}/player/bunny1_jump.png`);
 
     this.load.image("carrot", `${PATH__ASSETS}/items/carrot.png`);
 
@@ -123,6 +124,12 @@ export default class Game extends Phaser.Scene {
 
     if (touchingDown) {
       this.player.setVelocityY(-300);
+      this.player.setTexture("bunny-jump");
+    }
+
+    const vy = this.player.body.velocity.y;
+    if (vy > 0 && this.player.texture.key !== "bunny-stand") {
+      this.player.setTexture("bunny-stand");
     }
 
     if (this.cursors.left.isDown && !touchingDown) {
